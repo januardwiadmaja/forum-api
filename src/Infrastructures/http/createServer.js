@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import express from 'express';
+import process from 'process';
 import ClientError from '../../Commons/exceptions/ClientError.js';
 import DomainErrorTranslator from '../../Commons/exceptions/DomainErrorTranslator.js';
 import users from '../../Interfaces/http/api/users/index.js';
@@ -8,7 +9,7 @@ import threads from '../../Interfaces/http/api/threads/index.js';
 import jwt from 'jsonwebtoken';
 import comments from '../../Interfaces/http/api/comments/index.js';
 import replies from '../../Interfaces/http/api/replies/index.js';
-import process from 'process';
+import likes from '../../Interfaces/http/api/likes/index.js';
 
 const createServer = async (container) => {
   const app = express();
@@ -45,6 +46,7 @@ const createServer = async (container) => {
   app.use('/threads', threads(container, authMiddleware));
   app.use('/threads', comments(container, authMiddleware));
   app.use('/threads', replies(container, authMiddleware));
+  app.use('/threads', likes(container, authMiddleware));
 
   // Global error handler
   app.use((error, req, res, next) => {

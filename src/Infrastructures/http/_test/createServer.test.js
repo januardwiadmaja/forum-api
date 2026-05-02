@@ -379,4 +379,18 @@ describe('HTTP server', () => {
     expect(response.body.status).toEqual('error');
     expect(response.body.message).toEqual('terjadi kegagalan pada server kami');
   });
+
+  it('should return 401 when token is invalid', async () => {
+    const app = await createServer({});
+
+    const invalidToken = 'this-is-not-a-valid-token';
+
+    const response = await request(app)
+      .post('/threads')
+      .set('Authorization', `Bearer ${invalidToken}`);
+
+    expect(response.status).toBe(401);
+    expect(response.body.status).toBe('fail');
+    expect(response.body.message).toBe('Invalid token');
+  });
 });

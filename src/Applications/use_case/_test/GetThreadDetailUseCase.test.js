@@ -5,6 +5,7 @@ import ThreadDetail from '../../../Domains/threads/entities/ThreadDetail.js';
 import ThreadRepository from '../../../Domains/threads/ThreadRepository.js';
 import CommentRepository from '../../../Domains/comments/CommentRepository.js';
 import ReplyRepository from '../../../Domains/replies/ReplyRepository.js';
+import CommentLikeRepository from '../../../Domains/likes/CommentLikeRepository.js';
 import CommentDetail from '../../../Domains/comments/entities/CommentDetail.js';
 import ReplyDetail from '../../../Domains/replies/entities/ReplyDetail.js';
 
@@ -15,7 +16,7 @@ describe('GetThreadDetailUseCase', () => {
       id: 'thread-123',
       title: 'A thread',
       body: 'A long thread',
-      date: '2026-04-19T00:00:00.000Z',
+      date: '2023-09-07T00:00:00.000Z',
       username: 'foobar',
     };
 
@@ -23,7 +24,7 @@ describe('GetThreadDetailUseCase', () => {
       {
         id: 'comment-1',
         username: 'johndoe',
-        date: '2026-04-19T00:00:00.000Z',
+        date: '2023-09-07T00:00:00.000Z',
         content: 'a comment',
         is_delete: false,
       },
@@ -63,10 +64,39 @@ describe('GetThreadDetailUseCase', () => {
       },
     ];
 
+    const mockCommentsLikes = [
+      {
+        id: 'like-1',
+        comment: 'comment-1',
+        owner: 'johndoe',
+      },
+      {
+        id: 'like-2',
+        comment: 'comment-1',
+        owner: 'foobar',
+      },
+      {
+        id: 'like-3',
+        comment: 'comment-2',
+        owner: 'johndoe',
+      },
+      {
+        id: 'like-4',
+        comment: 'comment-2',
+        owner: 'johndoe',
+      },
+      {
+        id: 'like-5',
+        comment: 'comment-2',
+        owner: 'johndoe',
+      },
+    ];
+
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockCommentLikeRepository = new CommentLikeRepository();
 
     /** mocking needed function */
     mockThreadRepository.getThreadById = vi.fn(() =>
@@ -78,12 +108,16 @@ describe('GetThreadDetailUseCase', () => {
     mockReplyRepository.getRepliesByThreadId = vi.fn(() =>
       Promise.resolve(mockReplies),
     );
+    mockCommentLikeRepository.getLikesByThreadId = vi.fn(() =>
+      Promise.resolve(mockCommentsLikes),
+    );
 
     /** creating use case instance */
     const getThreadDetailUseCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
+      commentLikeRepository: mockCommentLikeRepository,
     });
 
     // Action
@@ -95,13 +129,13 @@ describe('GetThreadDetailUseCase', () => {
         id: 'thread-123',
         title: 'A thread',
         body: 'A long thread',
-        date: '2026-04-19T00:00:00.000Z',
+        date: '2023-09-07T00:00:00.000Z',
         username: 'foobar',
         comments: [
           new CommentDetail({
             id: 'comment-1',
             username: 'johndoe',
-            date: '2026-04-19T00:00:00.000Z',
+            date: '2023-09-07T00:00:00.000Z',
             content: 'a comment',
             replies: [
               new ReplyDetail({
@@ -117,6 +151,7 @@ describe('GetThreadDetailUseCase', () => {
                 content: '**balasan telah dihapus**',
               }),
             ],
+            likeCount: 2,
           }),
           new CommentDetail({
             id: 'comment-2',
@@ -124,6 +159,7 @@ describe('GetThreadDetailUseCase', () => {
             date: '2023-09-08T00:00:00.000Z',
             content: '**komentar telah dihapus**',
             replies: [],
+            likeCount: 3,
           }),
         ],
       }),
@@ -134,6 +170,10 @@ describe('GetThreadDetailUseCase', () => {
     );
     expect(mockReplyRepository.getRepliesByThreadId).toBeCalledTimes(1);
     expect(mockReplyRepository.getRepliesByThreadId).toBeCalledWith(
+      'thread-123',
+    );
+    expect(mockCommentLikeRepository.getLikesByThreadId).toBeCalledTimes(1);
+    expect(mockCommentLikeRepository.getLikesByThreadId).toBeCalledWith(
       'thread-123',
     );
   });

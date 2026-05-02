@@ -1,6 +1,6 @@
 import express from 'express';
 
-const createCommentsRouter = (handler, authMiddleware) => {
+const createRepliesRouter = (handler, authMiddleware) => {
   const router = express.Router();
 
   router.post(
@@ -18,4 +18,4 @@ const createCommentsRouter = (handler, authMiddleware) => {
   return router;
 };
 
-export default createCommentsRouter;
+export default createRepliesRouter;
